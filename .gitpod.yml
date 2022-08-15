@@ -10,7 +10,6 @@ vscode:
     - dracula-theme.theme-dracula
     - PKief.material-icon-theme
     - naumovs.color-highlight
-    - dotenv.dotenv-vscode
 
 ports:
   - port: 3000
@@ -19,4 +18,8 @@ ports:
 
   - port: 8081
     onOpen: open-preview
+    visibility: public
+
+  - port: 19000
+    onOpen: notify
     visibility: public
