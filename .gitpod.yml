@@ -1,17 +1,17 @@
 tasks:
-  - name: "Config Git"
+  - name: Config Git
     command: rm -rf ~/.gitconfig && git clone https://gist.github.com/8963dd086da31cd752d4696b8600999d.git gitconfig_test_folder && cp -r ./gitconfig_test_folder/.gitconfig ~/ && rm -rf gitconfig_test_folder && exit
 
-  - name: "Adding global dependencies"
-    command: "sudo npm i -g expo-cli nodemon @expo/ngrok@^4.1.0 && exit"
+  - name: Adding global dependencies
+    command: npm i -g expo-cli nodemon @expo/ngrok@^4.1.0 && exit
 
-  - name: "App terminal"
-    command: "cd app"
-    openMode: "split-left"
+  - name: App terminal
+    command: cd app
+    openMode: split-left
 
-  - name: "Backend terminal"
-    command: "cd backend"
-    openMode: "split-right"
+  - name: Backend terminal
+    command: cd backend
+    openMode: split-right
 
 
 vscode:
