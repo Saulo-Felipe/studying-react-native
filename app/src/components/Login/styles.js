@@ -69,6 +69,6 @@ export const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 5,
     marginTop: 15,
-    display: message
+    display: message == "none" ? message : "flex"
   }),
 });

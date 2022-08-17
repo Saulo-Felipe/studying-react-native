@@ -1,13 +1,87 @@
-import React, { useState } from "react";
-import { Pressable, Text, View, Image, KeyboardAvoidingView, TextInput, Platform, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Touchable } from "react-native";
+import React, { useState, useEffect } from "react";
+import { Pressable, Text, View, Image, KeyboardAvoidingView, TextInput, Platform, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Touchable, Alert } from "react-native";
 import { styles } from "./styles";
 import { FontAwesome5 } from '@expo/vector-icons';
+import { api } from "../../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as LocalAuthentication from 'expo-local-authentication';
 
 
-export function Login({ navigation: { setParams, goBack }, route }) {
+
+export function Login({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [messageDisplay, setMessageDisplay] = useState("none");
+  const [login, setLogin] = useState({
+    username: "",
+    password: "",
+  });
 
+  useEffect(() => {
+    verifyUser();
+  }, []);
+
+
+  function showErrorMessage(message) {
+    setMessageDisplay(message);
+
+    setTimeout(() => {
+      setMessageDisplay("none");
+    }, 4000);
+  }
+
+  async function handleLogin(loginParams) {
+    const {data} = await api.post("/login",
+      loginParams.username ? loginParams : login
+    );
+    
+    if (data.message) {
+      showErrorMessage(data.message);
+      await AsyncStorage.clear();
+    } else {
+      try {
+        await AsyncStorage.setItem("@user", JSON.stringify(data.user));
+        navigation.navigate("Admin");
+
+      } catch(e) {
+        showErrorMessage("Erro ao entrar.");
+      }
+    }
+  }
+
+  async function verifyUser() {
+    const user = await AsyncStorage.getItem("@user");
+
+    if (!!user) {
+      biometric();
+    } else {
+      console.log("User dislogado");
+    }
+  }
+
+  async function biometric() {
+    const hasHardware = await LocalAuthentication.hasHardwareAsync();
+
+    if (hasHardware) {
+      const authSaved = await LocalAuthentication.isEnrolledAsync()
+
+      if (authSaved) {
+        const biometricResult = await LocalAuthentication.authenticateAsync();
+        
+        if (biometricResult.success) {
+          let user = await AsyncStorage.getItem("@user");
+          user = JSON.parse(user);
+
+          return handleLogin({ 
+            username: user.name,  
+            password: user.password
+          });
+        }
+        
+      }
+    }
+
+    await AsyncStorage.clear();
+  }
 
   return (
     <KeyboardAvoidingView 
@@ -24,7 +98,8 @@ export function Login({ navigation: { setParams, goBack }, route }) {
             <Text style={styles.label}>Nome de usuário</Text>
             <TextInput 
               style={styles.input}
-              placeholder={"Usuário "} 
+              placeholder={"Usuário "}
+              onChangeText={text => setLogin({ ...login, username: text })} 
             />
 
             <Text style={styles.label}>Senha</Text>
@@ -33,7 +108,7 @@ export function Login({ navigation: { setParams, goBack }, route }) {
                 style={{...styles.input, ...styles.inputPassword}}
                 placeholder={"Senha "} 
                 secureTextEntry={!showPassword} 
-                onChangeText={(text) => console.log(text)}
+                onChangeText={text => setLogin({ ...login, password: text })}
               />
               <Pressable 
                 onPress={() => setShowPassword(showPassword == false)}
@@ -49,11 +124,14 @@ export function Login({ navigation: { setParams, goBack }, route }) {
 
           </View>
 
-          <TouchableOpacity style={styles.submitButton}>
+          <TouchableOpacity 
+            style={styles.submitButton}
+            onPress={handleLogin}
+          >
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>
 
-          <Text style={styles.errorMsgText(messageDisplay)}>Mesagens de erros aqui</Text>
+          <Text style={styles.errorMsgText(messageDisplay)}>{messageDisplay}</Text>
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

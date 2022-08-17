@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Home } from "./src/components/Home";
 import { Login } from './src/components/Login';
 import { Tracking } from './src/components/Tracking';
+import { Admin } from './src/components/Admin';
 
 
 const Stack = createNativeStackNavigator();
@@ -32,6 +33,14 @@ export default function App() {
         />
 
         <Stack.Screen name={"Tracking"} component={Tracking} />
+
+        <Stack.Screen 
+          name={"Admin"} 
+          component={Admin} 
+          options={{
+            headerShown: false
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

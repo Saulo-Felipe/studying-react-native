@@ -3,7 +3,7 @@ tasks:
     command: rm -rf ~/.gitconfig && git clone https://gist.github.com/8963dd086da31cd752d4696b8600999d.git gitconfig_test_folder && cp -r ./gitconfig_test_folder/.gitconfig ~/ && rm -rf gitconfig_test_folder && exit
 
   - name: Adding global dependencies
-    command: npm i -g expo-cli nodemon @expo/ngrok@^4.1.0 && exit
+    command: npm i -g expo-cli nodemon ts-node @expo/ngrok@^4.1.0 && exit
 
   - name: App terminal
     command: cd app
@@ -21,14 +21,18 @@ vscode:
     - naumovs.color-highlight
 
 ports:
-  - port: 3000
-    onOpen: ignore
-    visibility: public
-
   - port: 8081
-    onOpen: open-preview
+    onOpen: notify
     visibility: public
 
   - port: 19000
+    onOpen: notify
+    visibility: public
+
+  - port: 4040
+    onOpen: notify
+    visibility: public
+
+  - port: 5037
     onOpen: notify
     visibility: public
